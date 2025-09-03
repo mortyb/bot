@@ -1,166 +1,465 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Заказ авто из Кореи</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ авто из Кореи - Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
-            padding: 20px;
             color: white;
             min-height: 100vh;
+            padding: 20px;
         }
+        
         .container {
             max-width: 500px;
             margin: 0 auto;
-            text-align: center;
         }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
         .btn {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.95);
             color: #667eea;
             border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
+            padding: 18px 30px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
-            margin: 10px;
-            width: 80%;
-            transition: transform 0.2s;
+            margin: 12px 0;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+        
         .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
         .section {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .section h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+        
+        .brand-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .brand-card {
+            background: rgba(255, 255, 255, 0.15);
             padding: 20px;
             border-radius: 15px;
-            margin: 20px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        input, select {
-            width: 80%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
+        
+        .brand-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .brand-card h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .brand-card p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+        
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+        
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 20px;
             border-radius: 10px;
-            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚗 Заказ авто из Кореи</h1>
-        
-        <div class="section">
-            <h2>Выберите тип заказа:</h2>
-            <button class="btn" onclick="showInStock()">🏎️ Авто в наличии</button>
-            <button class="btn" onclick="showCustomOrder()">📦 Авто под заказ</button>
+        <div class="header">
+            <h1>🚗 Авто из Кореи</h1>
+            <p>Заказ автомобилей напрямую из Южной Кореи</p>
         </div>
 
-        <div id="inStockSection" class="section" style="display: none;">
+        <!-- Главное меню -->
+        <div id="mainMenu">
+            <div class="section">
+                <button class="btn" onclick="showSection('inStock')">
+                    🏎️ Авто в наличии
+                </button>
+                <button class="btn" onclick="showSection('customOrder')">
+                    📦 Авто под заказ
+                </button>
+                <button class="btn" onclick="showUserInfo()">
+                    👤 Информация
+                </button>
+            </div>
+        </div>
+
+        <!-- Авто в наличии -->
+        <div id="inStockSection" class="section hidden">
             <h2>🏎️ Авто в наличии</h2>
-            <select id="brandSelect" onchange="showBrandInfo()">
-                <option value="">Выберите марку</option>
-                <option value="hyundai">Hyundai</option>
-                <option value="kia">Kia</option>
-                <option value="genesis">Genesis</option>
-                <option value="ssangyong">SsangYong</option>
-                <option value="chevrolet">Chevrolet</option>
-            </select>
-            <div id="brandInfo"></div>
+            <p>Выберите марку автомобиля:</p>
+            
+            <div class="brand-grid">
+                <div class="brand-card" onclick="showBrandInfo('hyundai')">
+                    <h3>Hyundai</h3>
+                    <p>Sonata, Tucson, Santa Fe</p>
+                </div>
+                <div class="brand-card" onclick="showBrandInfo('kia')">
+                    <h3>Kia</h3>
+                    <p>Rio, Sportage, Sorento</p>
+                </div>
+                <div class="brand-card" onclick="showBrandInfo('genesis')">
+                    <h3>Genesis</h3>
+                    <p>G80, GV80, G90</p>
+                </div>
+                <div class="brand-card" onclick="showBrandInfo('ssangyong')">
+                    <h3>SsangYong</h3>
+                    <p>Rexton, Korando, Tivoli</p>
+                </div>
+            </div>
+            
+            <button class="back-btn" onclick="showSection('mainMenu')">🔙 Назад</button>
         </div>
 
-        <div id="customOrderSection" class="section" style="display: none;">
+        <!-- Информация о марке -->
+        <div id="brandInfoSection" class="section hidden">
+            <h2 id="brandName">🏁 Марка</h2>
+            <div id="brandDescription"></div>
+            <div id="brandModels"></div>
+            
+            <button class="btn" onclick="sendBrandSelection()">
+                ✅ Выбрать эту марку
+            </button>
+            <button class="back-btn" onclick="showSection('inStock')">🔙 Назад</button>
+        </div>
+
+        <!-- Авто под заказ -->
+        <div id="customOrderSection" class="section hidden">
             <h2>📦 Авто под заказ</h2>
-            <input type="text" id="brand" placeholder="Марка автомобиля">
-            <input type="text" id="model" placeholder="Модель">
-            <input type="number" id="engine" placeholder="Объем двигателя (л)" step="0.1">
-            <input type="number" id="mileage" placeholder="Пробег (км)">
-            <input type="number" id="year" placeholder="Год выпуска">
-            <button class="btn" onclick="submitOrder()">✅ Отправить заказ</button>
+            
+            <div class="form-group">
+                <label for="brand">Марка автомобиля:</label>
+                <input type="text" id="brand" class="form-control" placeholder="Например: Hyundai">
+            </div>
+            
+            <div class="form-group">
+                <label for="model">Модель:</label>
+                <input type="text" id="model" class="form-control" placeholder="Например: Tucson">
+            </div>
+            
+            <div class="form-group">
+                <label for="engine">Объем двигателя (л):</label>
+                <input type="number" id="engine" class="form-control" placeholder="2.0" step="0.1">
+            </div>
+            
+            <div class="form-group">
+                <label for="mileage">Пробег (км):</label>
+                <input type="number" id="mileage" class="form-control" placeholder="50000">
+            </div>
+            
+            <div class="form-group">
+                <label for="year">Год выпуска:</label>
+                <input type="number" id="year" class="form-control" placeholder="2022" min="1990" max="2024">
+            </div>
+            
+            <button class="btn" onclick="submitOrder()">
+                🚀 Отправить заказ
+            </button>
+            
+            <button class="back-btn" onclick="showSection('mainMenu')">🔙 Назад</button>
         </div>
 
-        <div id="status"></div>
+        <!-- Информация о пользователе -->
+        <div id="userInfoSection" class="section hidden">
+            <h2>👤 Информация</h2>
+            <div id="userInfo"></div>
+            <button class="back-btn" onclick="showSection('mainMenu')">🔙 Назад</button>
+        </div>
+
+        <!-- Статус -->
+        <div id="status" class="status hidden"></div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
+        let currentBrand = null;
         
         // Инициализация
         tg.expand();
         tg.enableClosingConfirmation();
+        tg.BackButton.hide();
         
-        function showInStock() {
-            document.getElementById('inStockSection').style.display = 'block';
-            document.getElementById('customOrderSection').style.display = 'none';
-        }
-        
-        function showCustomOrder() {
-            document.getElementById('inStockSection').style.display = 'none';
-            document.getElementById('customOrderSection').style.display = 'block';
-        }
-        
-        function showBrandInfo() {
-            const brand = document.getElementById('brandSelect').value;
-            let info = '';
-            
-            switch(brand) {
-                case 'hyundai':
-                    info = 'Hyundai - корейский производитель с хорошим соотношением цены и качества. Популярные модели: Sonata, Elantra, Tucson';
-                    break;
-                case 'kia':
-                    info = 'Kia - стильные и надежные автомобили. Модели: Rio, Sportage, Sorento';
-                    break;
-                case 'genesis':
-                    info = 'Genesis - премиальный бренд Hyundai. Люкс модели: G80, GV80';
-                    break;
-                case 'ssangyong':
-                    info = 'SsangYong - внедорожники и кроссоверы. Модели: Rexton, Korando';
-                    break;
-                case 'chevrolet':
-                    info = 'Chevrolet - американский бренд, производимый в Корее. Модели: Spark, Cruze';
-                    break;
-                default:
-                    info = 'Выберите марку для получения информации';
+        // Данные по маркам авто
+        const carBrands = {
+            "hyundai": {
+                name: "Hyundai",
+                description: "Корейский производитель с хорошим соотношением цены и качества. Надежные автомобили с современным дизайном.",
+                models: ["Sonata", "Elantra", "Tucson", "Santa Fe", "Palisade", "Kona"]
+            },
+            "kia": {
+                name: "Kia",
+                description: "Стильные и технологичные автомобили. Отличное оснащение и привлекательный дизайн.",
+                models: ["Rio", "Cerato", "Sportage", "Sorento", "Carnival", "K5"]
+            },
+            "genesis": {
+                name: "Genesis",
+                description: "Премиальный бренд Hyundai. Роскошные автомобили с передовыми технологиями.",
+                models: ["G70", "G80", "G90", "GV70", "GV80"]
+            },
+            "ssangyong": {
+                name: "SsangYong",
+                description: "Специализируется на внедорожниках и кроссоверах. Прочные и надежные автомобили.",
+                models: ["Rexton", "Korando", "Tivoli", "Musso", "Chairman"]
             }
+        };
+        
+        // Показ секций
+        function showSection(sectionId) {
+            // Скрыть все секции
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById('status').classList.add('hidden');
             
-            document.getElementById('brandInfo').innerHTML = `<p>${info}</p>`;
+            // Показать нужную секцию
+            document.getElementById(sectionId + 'Section').classList.remove('hidden');
         }
         
-        function submitOrder() {
-            const orderData = {
-                action: 'custom_order',
-                brand: document.getElementById('brand').value,
-                model: document.getElementById('model').value,
-                engine: document.getElementById('engine').value,
-                mileage: document.getElementById('mileage').value,
-                year: document.getElementById('year').value,
-                timestamp: new Date().toISOString()
+        // Показать информацию о марке
+        function showBrandInfo(brandKey) {
+            const brand = carBrands[brandKey];
+            if (!brand) return;
+            
+            currentBrand = brandKey;
+            
+            document.getElementById('brandName').textContent = `🏁 ${brand.name}`;
+            document.getElementById('brandDescription').innerHTML = `
+                <p style="margin-bottom: 15px; line-height: 1.6;">${brand.description}</p>
+            `;
+            
+            let modelsHtml = '<h3 style="margin-bottom: 10px;">🚘 Доступные модели:</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">';
+            brand.models.forEach(model => {
+                modelsHtml += `<div style="background: rgba(255,255,255,0.1); padding: 8px; border-radius: 8px; text-align: center;">${model}</div>`;
+            });
+            modelsHtml += '</div>';
+            
+            document.getElementById('brandModels').innerHTML = modelsHtml;
+            showSection('brandInfo');
+        }
+        
+        // Отправить выбор марки
+        function sendBrandSelection() {
+            if (!currentBrand) return;
+            
+            const brand = carBrands[currentBrand];
+            const data = {
+                action: 'brand_selection',
+                brand: brand.name,
+                brand_key: currentBrand,
+                timestamp: new Date().toISOString(),
+                message: `Выбрана марка: ${brand.name}`
             };
             
-            if (!orderData.brand || !orderData.model) {
-                tg.showAlert('Заполните обязательные поля: марка и модель');
+            tg.sendData(JSON.stringify(data));
+            showStatus('✅ Выбор отправлен боту!', 'success');
+            
+            setTimeout(() => {
+                showSection('mainMenu');
+            }, 2000);
+        }
+        
+        // Отправить заказ
+        function submitOrder() {
+            const brand = document.getElementById('brand').value.trim();
+            const model = document.getElementById('model').value.trim();
+            const engine = document.getElementById('engine').value;
+            const mileage = document.getElementById('mileage').value;
+            const year = document.getElementById('year').value;
+            
+            if (!brand || !model) {
+                showStatus('❌ Заполните марку и модель', 'error');
                 return;
             }
             
-            tg.sendData(JSON.stringify(orderData));
-            document.getElementById('status').innerHTML = 
-                '<p style="color: green;">✅ Заказ отправлен! Бот обработает ваш запрос.</p>';
+            const orderData = {
+                action: 'custom_order',
+                brand: brand,
+                model: model,
+                engine_volume: engine ? parseFloat(engine) : null,
+                mileage: mileage ? parseInt(mileage) : null,
+                year: year ? parseInt(year) : null,
+                timestamp: new Date().toISOString(),
+                message: `Заказ: ${brand} ${model}`
+            };
             
-            // Очищаем форму
+            tg.sendData(JSON.stringify(orderData));
+            
+            // Очистить форму
             document.getElementById('brand').value = '';
             document.getElementById('model').value = '';
             document.getElementById('engine').value = '';
             document.getElementById('mileage').value = '';
             document.getElementById('year').value = '';
+            
+            showStatus('✅ Заказ отправлен! Менеджер свяжется с вами.', 'success');
+            
+            setTimeout(() => {
+                showSection('mainMenu');
+            }, 3000);
         }
         
-        // Показываем информацию о пользователе
-        if (tg.initDataUnsafe.user) {
-            document.getElementById('status').innerHTML += 
-                `<p>👤 Добро пожаловать, ${tg.initDataUnsafe.user.first_name}!</p>`;
+        // Показать информацию о пользователе
+        function showUserInfo() {
+            const user = tg.initDataUnsafe.user;
+            let userInfoHtml = '';
+            
+            if (user) {
+                userInfoHtml = `
+                    <div style="text-align: left; line-height: 1.8;">
+                        <p><strong>👤 Имя:</strong> ${user.first_name} ${user.last_name || ''}</p>
+                        <p><strong>🆔 ID:</strong> ${user.id}</p>
+                        <p><strong>📧 Username:</strong> @${user.username || 'не указан'}</p>
+                        <p><strong>🌐 Язык:</strong> ${user.language_code || 'не указан'}</p>
+                    </div>
+                `;
+            } else {
+                userInfoHtml = '<p>Информация о пользователе недоступна</p>';
+            }
+            
+            document.getElementById('userInfo').innerHTML = userInfoHtml;
+            showSection('userInfo');
         }
+        
+        // Показать статус
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.classList.remove('hidden');
+        }
+        
+        // Обработчики событий Telegram
+        tg.onEvent('viewportChanged', (data) => {
+            console.log('Viewport changed:', data);
+        });
+        
+        // Показать информацию о пользователе при загрузке
+        if (tg.initDataUnsafe.user) {
+            console.log('User:', tg.initDataUnsafe.user);
+        }
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Mini App loaded successfully');
+        });
     </script>
 </body>
 </html>
