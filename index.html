@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        button {
+            background: #fff;
+            color: #667eea;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .user-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Мое Mini App</h1>
+        <p>Простое приложение для Telegram</p>
+        
+        <button onclick="sendData()">📤 Отправить данные боту</button>
+        <button onclick="showAlert()">💡 Показать уведомление</button>
+        <button onclick="closeApp()">❌ Закрыть приложение</button>
+        
+        <div class="user-info" id="userInfo">
+            <h3>Информация о пользователе:</h3>
+            <p>Загрузка...</p>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        
+        // Инициализация
+        tg.expand();
+        tg.enableClosingConfirmation();
+        
+        // Показываем информацию о пользователе
+        function updateUserInfo() {
+            const user = tg.initDataUnsafe.user;
+            const userInfo = document.getElementById('userInfo');
+            
+            if (user) {
+                userInfo.innerHTML = `
+                    <h3>👤 Информация о пользователе:</h3>
+                    <p><strong>Имя:</strong> ${user.first_name} ${user.last_name || ''}</p>
+                    <p><strong>ID:</strong> ${user.id}</p>
+                    <p><strong>Username:</strong> @${user.username || 'не указан'}</p>
+                    <p><strong>Язык:</strong> ${user.language_code || 'не указан'}</p>
+                `;
+            } else {
+                userInfo.innerHTML = '<p>Информация о пользователе недоступна</p>';
+            }
+        }
+        
+        // Функция отправки данных
+        function sendData() {
+            const data = {
+                action: 'button_click',
+                timestamp: new Date().toISOString(),
+                message: 'Привет из Mini App на GitHub Pages!',
+                user: tg.initDataUnsafe.user ? {
+                    id: tg.initDataUnsafe.user.id,
+                    first_name: tg.initDataUnsafe.user.first_name
+                } : null
+            };
+            
+            tg.sendData(JSON.stringify(data));
+            document.getElementById('status').innerHTML = 
+                '<p style="color: green;">✅ Данные отправлены боту!</p>';
+            
+            setTimeout(() => {
+                document.getElementById('status').innerHTML = '';
+            }, 3000);
+        }
+        
+        // Показать уведомление
+        function showAlert() {
+            tg.showAlert('Это уведомление из Mini App! 🚀');
+        }
+        
+        // Закрыть приложение
+        function closeApp() {
+            tg.close();
+        }
+        
+        // Обновляем информацию при загрузке
+        updateUserInfo();
+        
+        // Обработчики событий
+        tg.onEvent('viewportChanged', (data) => {
+            console.log('Viewport changed:', data);
+        });
+        
+        tg.onEvent('themeChanged', () => {
+            console.log('Theme changed');
+        });
+    </script>
+</body>
+</html>
