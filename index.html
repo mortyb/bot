@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Telegram Mini App</title>
+    <title>Заказ авто из Кореи</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -17,7 +17,7 @@
             margin: 0 auto;
             text-align: center;
         }
-        button {
+        .btn {
             background: #fff;
             color: #667eea;
             border: none;
@@ -26,33 +26,61 @@
             font-size: 16px;
             cursor: pointer;
             margin: 10px;
+            width: 80%;
             transition: transform 0.2s;
         }
-        button:hover {
+        .btn:hover {
             transform: translateY(-2px);
         }
-        .user-info {
+        .section {
             background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 15px;
             margin: 20px 0;
+        }
+        input, select {
+            width: 80%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎉 Мое Mini App</h1>
-        <p>Простое приложение для Telegram</p>
+        <h1>🚗 Заказ авто из Кореи</h1>
         
-        <button onclick="sendData()">📤 Отправить данные боту</button>
-        <button onclick="showAlert()">💡 Показать уведомление</button>
-        <button onclick="closeApp()">❌ Закрыть приложение</button>
-        
-        <div class="user-info" id="userInfo">
-            <h3>Информация о пользователе:</h3>
-            <p>Загрузка...</p>
+        <div class="section">
+            <h2>Выберите тип заказа:</h2>
+            <button class="btn" onclick="showInStock()">🏎️ Авто в наличии</button>
+            <button class="btn" onclick="showCustomOrder()">📦 Авто под заказ</button>
         </div>
-        
+
+        <div id="inStockSection" class="section" style="display: none;">
+            <h2>🏎️ Авто в наличии</h2>
+            <select id="brandSelect" onchange="showBrandInfo()">
+                <option value="">Выберите марку</option>
+                <option value="hyundai">Hyundai</option>
+                <option value="kia">Kia</option>
+                <option value="genesis">Genesis</option>
+                <option value="ssangyong">SsangYong</option>
+                <option value="chevrolet">Chevrolet</option>
+            </select>
+            <div id="brandInfo"></div>
+        </div>
+
+        <div id="customOrderSection" class="section" style="display: none;">
+            <h2>📦 Авто под заказ</h2>
+            <input type="text" id="brand" placeholder="Марка автомобиля">
+            <input type="text" id="model" placeholder="Модель">
+            <input type="number" id="engine" placeholder="Объем двигателя (л)" step="0.1">
+            <input type="number" id="mileage" placeholder="Пробег (км)">
+            <input type="number" id="year" placeholder="Год выпуска">
+            <button class="btn" onclick="submitOrder()">✅ Отправить заказ</button>
+        </div>
+
         <div id="status"></div>
     </div>
 
@@ -63,66 +91,76 @@
         tg.expand();
         tg.enableClosingConfirmation();
         
-        // Показываем информацию о пользователе
-        function updateUserInfo() {
-            const user = tg.initDataUnsafe.user;
-            const userInfo = document.getElementById('userInfo');
-            
-            if (user) {
-                userInfo.innerHTML = `
-                    <h3>👤 Информация о пользователе:</h3>
-                    <p><strong>Имя:</strong> ${user.first_name} ${user.last_name || ''}</p>
-                    <p><strong>ID:</strong> ${user.id}</p>
-                    <p><strong>Username:</strong> @${user.username || 'не указан'}</p>
-                    <p><strong>Язык:</strong> ${user.language_code || 'не указан'}</p>
-                `;
-            } else {
-                userInfo.innerHTML = '<p>Информация о пользователе недоступна</p>';
-            }
+        function showInStock() {
+            document.getElementById('inStockSection').style.display = 'block';
+            document.getElementById('customOrderSection').style.display = 'none';
         }
         
-        // Функция отправки данных
-        function sendData() {
-            const data = {
-                action: 'button_click',
-                timestamp: new Date().toISOString(),
-                message: 'Привет из Mini App на GitHub Pages!',
-                user: tg.initDataUnsafe.user ? {
-                    id: tg.initDataUnsafe.user.id,
-                    first_name: tg.initDataUnsafe.user.first_name
-                } : null
+        function showCustomOrder() {
+            document.getElementById('inStockSection').style.display = 'none';
+            document.getElementById('customOrderSection').style.display = 'block';
+        }
+        
+        function showBrandInfo() {
+            const brand = document.getElementById('brandSelect').value;
+            let info = '';
+            
+            switch(brand) {
+                case 'hyundai':
+                    info = 'Hyundai - корейский производитель с хорошим соотношением цены и качества. Популярные модели: Sonata, Elantra, Tucson';
+                    break;
+                case 'kia':
+                    info = 'Kia - стильные и надежные автомобили. Модели: Rio, Sportage, Sorento';
+                    break;
+                case 'genesis':
+                    info = 'Genesis - премиальный бренд Hyundai. Люкс модели: G80, GV80';
+                    break;
+                case 'ssangyong':
+                    info = 'SsangYong - внедорожники и кроссоверы. Модели: Rexton, Korando';
+                    break;
+                case 'chevrolet':
+                    info = 'Chevrolet - американский бренд, производимый в Корее. Модели: Spark, Cruze';
+                    break;
+                default:
+                    info = 'Выберите марку для получения информации';
+            }
+            
+            document.getElementById('brandInfo').innerHTML = `<p>${info}</p>`;
+        }
+        
+        function submitOrder() {
+            const orderData = {
+                action: 'custom_order',
+                brand: document.getElementById('brand').value,
+                model: document.getElementById('model').value,
+                engine: document.getElementById('engine').value,
+                mileage: document.getElementById('mileage').value,
+                year: document.getElementById('year').value,
+                timestamp: new Date().toISOString()
             };
             
-            tg.sendData(JSON.stringify(data));
-            document.getElementById('status').innerHTML = 
-                '<p style="color: green;">✅ Данные отправлены боту!</p>';
+            if (!orderData.brand || !orderData.model) {
+                tg.showAlert('Заполните обязательные поля: марка и модель');
+                return;
+            }
             
-            setTimeout(() => {
-                document.getElementById('status').innerHTML = '';
-            }, 3000);
+            tg.sendData(JSON.stringify(orderData));
+            document.getElementById('status').innerHTML = 
+                '<p style="color: green;">✅ Заказ отправлен! Бот обработает ваш запрос.</p>';
+            
+            // Очищаем форму
+            document.getElementById('brand').value = '';
+            document.getElementById('model').value = '';
+            document.getElementById('engine').value = '';
+            document.getElementById('mileage').value = '';
+            document.getElementById('year').value = '';
         }
         
-        // Показать уведомление
-        function showAlert() {
-            tg.showAlert('Это уведомление из Mini App! 🚀');
+        // Показываем информацию о пользователе
+        if (tg.initDataUnsafe.user) {
+            document.getElementById('status').innerHTML += 
+                `<p>👤 Добро пожаловать, ${tg.initDataUnsafe.user.first_name}!</p>`;
         }
-        
-        // Закрыть приложение
-        function closeApp() {
-            tg.close();
-        }
-        
-        // Обновляем информацию при загрузке
-        updateUserInfo();
-        
-        // Обработчики событий
-        tg.onEvent('viewportChanged', (data) => {
-            console.log('Viewport changed:', data);
-        });
-        
-        tg.onEvent('themeChanged', () => {
-            console.log('Theme changed');
-        });
     </script>
 </body>
 </html>
